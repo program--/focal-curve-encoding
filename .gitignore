@@ -1,0 +1,9 @@
+compile_commands.json
+compile_flags.txt
+build/
+.cache
+.Rproj.user
+.Rhistory
+.Rdata
+.httr-oauth
+.DS_Store
