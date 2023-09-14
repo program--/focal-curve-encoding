@@ -1,0 +1,57 @@
+---
+title: "Focal Curve Encoding (FCE)"
+author:
+  - name: "Justin Singh-Mohudpur"
+    url: https://github.com/program--
+    affiliation: Georgia Institute of Technology
+    affiliation_url: https://gatech.edu
+date: "`r format(Sys.Date())`"
+output: distill::distill_article
+vignette: >
+  %\VignetteIndexEntry{format}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  echo = FALSE
+)
+```
+
+<small>Version 0.1.0</small>
+
+FCE is a simple encoding scheme with influences from the
+[Tiny Well-known Binary](https://github.com/TWKB/Specification) specification.
+
+## Concept
+
+The general idea of this encoding format relies on the idea that as the number of subdivisions of a discrete uniform grid tend to infinity,
+then the index mapping of a (pseudo) space-filling curve (SFC) to that grid will tend to points contained within the extent of that grid.
+
+```{r}
+knitr::include_graphics("figures/process.png")
+```
+
+Then, this implies that we can project a 2-dimensional set of coordinates down to 1 dimension. In particular, our SFC mapping provides a
+**1-dimensional (64-bit unsigned) integer** representation of **2-dimensional floating-point** coordinates. This representation is favorable in the case of
+compression, as we can now take advantage of **variable integer (varint) encoding**, and we've reduced the amount of raw bits needed for storage
+in approximately half.
+
+Moreover, to further exploit the integer representation, if we provide an associative order, in the form of an array,
+we can sort the integer coordinates and **delta encode** them before varint encoding.
+
+While this approach is highly compressible and fairly fast, it comes with the tradeoffs that:
+
+1. random access is not possible on the underlying data.
+
+   > Random access *could* be possible, using offsets and lengths, but the cost of that negates the savings in projecting the original coordinates.
+  
+2. using too small of an _n_ results in a loss of precision.
+
+# References
+1. Liu, Dongge, Tao Wang, Xiaojuan Li, Yeqing Ni, Yanping Li, and Zhao Jin. 2020.
+  "A Multiresolution Vector Data Compression Algorithm Based on Space Division"
+  ISPRS International Journal of Geo-Information 9, no. 12: 721. https://doi.org/10.3390/ijgi9120721
